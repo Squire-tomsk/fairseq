@@ -298,7 +298,8 @@ class TqdmProgressBar(BaseProgressBar):
 
 try:
     _tensorboard_writers = {}
-    from tensorboardX import SummaryWriter
+    #from tensorboardX import SummaryWriter
+    from torch.utils.tensorboard import SummaryWriter
 except ImportError:
     SummaryWriter = None
 
