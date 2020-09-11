@@ -14,10 +14,8 @@ import torch.nn as nn
 
 
 def gelu_accurate(x):
-    if not hasattr(gelu_accurate, "_a"):
-        gelu_accurate._a = math.sqrt(2 / math.pi)
     return (
-        0.5 * x * (1 + torch.tanh(gelu_accurate._a * (x + 0.044715 * torch.pow(x, 3))))
+        0.5 * x * (1 + torch.tanh(math.sqrt(2 / math.pi) * (x + 0.044715 * torch.pow(x, 3))))
     )
 
 
