@@ -17,6 +17,7 @@ class _FP16OptimizerMixin(object):
     def __init__(self, *args, **kwargs):
         # forward __init__ call to the next class in mro(method resolution order)
         super().__init__(*args, **kwargs)
+        self._multiply_factor = 1.
 
     @property
     def has_flat_params(self):
@@ -135,7 +136,7 @@ class _FP16OptimizerMixin(object):
                 self._multiply_factor *= max_norm / grad_norm
 
             self.scaler.check_overflow(grad_norm)
-        else:
+        elif max_norm > 0.0:
             clip_coef = (max_norm / (grad_norm + 1e-6)).clamp_(max=1)
             self._multiply_factor *= clip_coef
 
@@ -145,7 +146,7 @@ class _FP16OptimizerMixin(object):
         """Performs a single optimization step."""
         self._sync_fp16_grads_to_fp32()
 
-        if self.supports_step_with_scale:
+        if getattr(self, 'supports_step_with_scale', False):
             self.fp32_optimizer.step(closure, scale=(1. / self._multiply_factor))
         else:
             self._unscale_grads()
@@ -332,7 +333,7 @@ class _MemoryEfficientFP16OptimizerMixin(object):
 
     def step(self, closure=None):
         """Performs a single optimization step."""
-        if self.supports_step_with_scale:
+        if getattr(self, 'supports_step_with_scale', False):
             # NOTE(msb) optimizer divides by scale factor
             self.wrapped_optimizer.step(closure, scale=(1. / self._multiply_factor))
         else:

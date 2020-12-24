@@ -136,7 +136,7 @@ def _main(args, output_file):
             x = tokenizer.decode(x)
         return x
 
-    scorer = scoring.build_scorer(args, tgt_dict)
+    scorer = scoring.scoring_utils.build_scorer(args, tgt_dict)
 
     num_sentences = 0
     has_target = True
@@ -150,12 +150,8 @@ def _main(args, output_file):
         if args.prefix_size > 0:
             prefix_tokens = sample['target'][:, :args.prefix_size]
 
-        constraints = None
-        if "constraints" in sample:
-            constraints = sample["constraints"]
-
         gen_timer.start()
-        hypos = task.inference_step(generator, models, sample, prefix_tokens=prefix_tokens, constraints=constraints)
+        hypos = task.inference_step(generator, models, sample, prefix_tokens)
         num_generated_tokens = sum(len(h[0]['tokens']) for h in hypos)
         gen_timer.stop(num_generated_tokens)
 
