@@ -136,7 +136,7 @@ class AudioPretrainingTask(FairseqTask):
         manifest = os.path.join(data_path, "{}.tsv".format(split))
         self.datasets[split] = FileAudioDataset(
             manifest,
-            sample_rate=task_cfg.sample_rate,
+            sample_rate=task_cfg.sample_rate if 'sample_rate' in task_cfg else 16000,
             max_sample_size=self.cfg.max_sample_size,
             min_sample_size=self.cfg.max_sample_size,
             min_length=self.cfg.min_sample_size,
@@ -160,7 +160,7 @@ class AudioPretrainingTask(FairseqTask):
                 eos=self.target_dictionary.eos(),
                 batch_targets=True,
                 process_label=process_label,
-                add_to_input=task_cfg.autoregressive,
+                add_to_input=task_cfg.autoregressive if 'autoregressive' in task_cfg else False,
             )
 
     @property

@@ -7,6 +7,7 @@
 import logging
 import os
 import sys
+import librosa
 
 import numpy as np
 import torch
@@ -53,7 +54,8 @@ class RawAudioDataset(FairseqDataset):
             feats = feats.mean(-1)
 
         if curr_sample_rate != self.sample_rate:
-            raise Exception(f"sample rate: {curr_sample_rate}, need {self.sample_rate}")
+            #raise Exception(f"sample rate: {curr_sample_rate}, need {self.sample_rate}")
+            feats = torch.from_numpy(librosa.resample(feats.numpy(), curr_sample_rate, self.sample_rate))
 
         assert feats.dim() == 1, feats.dim()
 
